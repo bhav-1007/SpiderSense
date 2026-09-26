@@ -4,6 +4,8 @@
 
 **An AI-Driven, Zero-Latency Tactical Dispatch Platform.**
 
+🚀 **[Live Demo: https://spidersense-u0wc.onrender.com/](https://spidersense-u0wc.onrender.com/)**
+
 [![React](https://img.shields.io/badge/React-18-blue.svg?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![Socket.io](https://img.shields.io/badge/Socket.io-Real--Time-black.svg?style=for-the-badge&logo=socket.io)](https://socket.io/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-AI_Auto--Dispatch-orange.svg?style=for-the-badge&logo=google)](https://ai.google.dev/)
