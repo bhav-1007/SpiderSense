@@ -163,12 +163,12 @@ app.post('/api/heroes', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { id } = req.body;
-    // Hackathon demo mode: Bypass password check entirely, just look up the unit by ID
-    const hero = await Hero.findOne({ id, isActive: true }).lean();
+    // Hackathon demo mode: Bypass password and isActive checks entirely
+    const hero = await Hero.findOne({ id }).lean();
     if (hero) {
       res.json(hero);
     } else {
-      res.status(401).json({ error: 'Hero not found or is deactivated' });
+      res.status(401).json({ error: 'Hero not found' });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
