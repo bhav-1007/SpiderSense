@@ -126,11 +126,11 @@ export function StoreProvider({ children }) {
     }
   }, []);
 
-  const loginHero = useCallback(async (username, password) => {
+  const loginHero = useCallback(async (heroId) => {
     try {
-      const res = await axios.post(`${API_BASE}/login`, { username, password });
+      const res = await axios.post(`${API_BASE}/login`, { id: heroId });
       const hero = res.data;
-      const user = { id: `u-${Date.now()}`, name: hero.name, role: 'responder', unitId: hero.id };
+      const user = { id: `u-${Date.now()}`, name: hero.callSign || hero.name, role: 'responder', unitId: hero.id };
       setCurrentUser(user);
       localStorage.setItem('spidersense_user', JSON.stringify(user));
       return hero;

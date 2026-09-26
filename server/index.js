@@ -162,12 +162,13 @@ app.post('/api/heroes', async (req, res) => {
 // 1.6 Login Hero
 app.post('/api/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const hero = await Hero.findOne({ username, password, isActive: true }).lean();
+    const { id } = req.body;
+    // Hackathon demo mode: Bypass password check entirely, just look up the unit by ID
+    const hero = await Hero.findOne({ id, isActive: true }).lean();
     if (hero) {
       res.json(hero);
     } else {
-      res.status(401).json({ error: 'Invalid credentials or hero is deactivated' });
+      res.status(401).json({ error: 'Hero not found or is deactivated' });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });

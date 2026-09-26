@@ -8,7 +8,6 @@ export default function Login({ onNavigate }) {
   const [role, setRole] = useState('commander');
 
   const [selectedHero, setSelectedHero] = useState(null);
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { units, login, loginHero } = useStore();
 
@@ -22,11 +21,10 @@ export default function Login({ onNavigate }) {
 
   const handleHeroLogin = async (e) => {
     e.preventDefault();
-    if (!password) return;
     setLoading(true);
     setError('');
     try {
-      await loginHero(selectedHero.username, password);
+      await loginHero(selectedHero.id);
       onNavigate('responder');
     } catch (err) {
       setError('Invalid credentials');
@@ -128,7 +126,7 @@ export default function Login({ onNavigate }) {
             )}
           </>
         ) : (
-          <form onSubmit={handleHeroLogin} className="space-y-6">
+          <div className="space-y-6">
             <div className="flex items-center gap-4 p-4 border border-[var(--cyan)] bg-[var(--cyan)]/10 rounded-lg">
               <img src={selectedHero.avatarUrl} alt={selectedHero.callSign} className="w-12 h-12 rounded-full border-2 border-[var(--cyan)]" />
               <div>
@@ -138,29 +136,19 @@ export default function Login({ onNavigate }) {
               <button type="button" onClick={() => setSelectedHero(null)} className="ml-auto text-xs text-[var(--ink-muted)] hover:text-[var(--ink)]">CHANGE</button>
             </div>
             
-            <div>
-              <label className="data-label text-[var(--cyan)] block mb-2">PASSCODE</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-[var(--panel-raised)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--ink)] focus:border-[var(--cyan)] outline-none"
-                placeholder="Enter passcode"
-                autoFocus
-              />
-              {error && <p className="text-[var(--red)] text-xs mt-2">{error}</p>}
-            </div>
+            {error && <p className="text-[var(--red)] text-xs mt-2 text-center">{error}</p>}
 
             <button
-              type="submit"
+              type="button"
+              onClick={handleHeroLogin}
               disabled={loading}
-              className="w-full relative flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-display font-bold tracking-wide border-[3px] shadow-[0_0_15px_rgba(39,197,232,0.3)] transition-all overflow-hidden hover:bg-[rgba(39,197,232,0.2)]"
+              className="w-full relative flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-display font-bold tracking-wide border-[3px] shadow-[0_0_15px_rgba(39,197,232,0.3)] transition-all overflow-hidden hover:bg-[rgba(39,197,232,0.2)] mt-8"
               style={{ borderColor: 'var(--cyan)', color: 'var(--ink)', background: 'rgba(39,197,232,0.1)' }}
             >
               {loading ? <span className="animate-pulse">SYNCING STARK TECH...</span> : <>AUTHENTICATE <ArrowRight size={18} /></>}
               {loading && <div className="absolute bottom-0 left-0 h-1 bg-[var(--cyan)] animate-[scan-sweep_1s_ease-in-out_infinite]" style={{ width: '100%' }} />}
             </button>
-          </form>
+          </div>
         )}
 
         <p className="data-label text-[var(--ink-faint)] text-center mt-6">
