@@ -347,6 +347,20 @@ app.patch('/api/units/:id/status', async (req, res) => {
 
 // =========================================================
 
+// --- SERVE FRONTEND IN PRODUCTION ---
+// This allows you to host both the backend and frontend on a single service (like Render)
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React app build directory (../dist)
+  const buildPath = path.join(__dirname, '../dist');
+  app.use(express.static(buildPath));
+
+  // The "catchall" handler: for any request that doesn't match an api route, 
+  // send back React's index.html file.
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+}
+
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 });
