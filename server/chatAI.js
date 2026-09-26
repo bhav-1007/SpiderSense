@@ -27,7 +27,7 @@ LIVE SYSTEM DATA:
 Active Incidents: ${JSON.stringify(contextData.incidents.map(i => ({ title: i.title, type: i.type, severity: i.severity, status: i.status })))}
 Heroes Status: ${JSON.stringify(contextData.heroes.map(h => ({ callSign: h.callSign, type: h.type, status: h.status, battery: h.battery })))}
 
-Answer the user's question accurately using only this real-time data or the platform explanation. Keep responses concise, professional, and slightly witty.`;
+You are free to answer ANY general question the user asks (trivia, tech, Marvel lore, casual chat, etc.). If the question is about the current tactical situation or the website, use the live data and platform explanation provided above. Always keep responses concise, helpful, and slightly witty in the style of J.A.R.V.I.S.`;
 
   try {
     const model = genAI.getGenerativeModel({
