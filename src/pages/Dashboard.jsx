@@ -10,9 +10,9 @@ import AIChatBot from '../components/AIChatBot';
 import { useStore } from '../context/StoreContext';
 import { useSocket } from '../context/SocketContext';
 
-const SEVERITY_COLOR = { critical: '#E63C2F', high: '#F07B1D', moderate: '#1C4FA6', low: '#6B6259' };
+const SEVERITY_COLOR = { critical: '#FF0033', high: '#FFAA00', moderate: '#0066FF', low: '#94A3B8' };
 const STATUS_COLOR = {
-  unassigned: '#6B6259', dispatched: '#F07B1D', 'en-route': '#1C4FA6', 'on-scene': '#E63C2F', resolved: '#2E9E4F',
+  unassigned: '#94A3B8', dispatched: '#FFAA00', 'en-route': '#0066FF', 'on-scene': '#FF0033', resolved: '#00FF88',
 };
 
 function LiveClock() {

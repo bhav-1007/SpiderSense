@@ -15,19 +15,19 @@ import { useStore } from '../context/StoreContext';
  */
 
 const TYPE_META = {
-  fire: { color: '#E63C2F', label: 'FIRE / RESCUE' },
-  medical: { color: '#2E9E4F', label: 'MEDICAL' },
-  hazmat: { color: '#F07B1D', label: 'HAZMAT' },
-  tactical: { color: '#1C4FA6', label: 'TACTICAL' },
-  air: { color: '#2AA8D8', label: 'AIR SUPPORT' },
+  fire: { color: '#FF0033', label: 'FIRE / RESCUE' },
+  medical: { color: '#00FF88', label: 'MEDICAL' },
+  hazmat: { color: '#FFAA00', label: 'HAZMAT' },
+  tactical: { color: '#0066FF', label: 'TACTICAL' },
+  air: { color: '#00FFFF', label: 'AIR SUPPORT' },
 };
 
 const STATUS_META = {
-  available: { color: '#2E9E4F', label: 'AVAILABLE' },
-  dispatched: { color: '#F07B1D', label: 'DISPATCHED' },
-  'en-route': { color: '#1C4FA6', label: 'EN ROUTE' },
-  'on-scene': { color: '#E63C2F', label: 'ON SCENE' },
-  offline: { color: '#A69A87', label: 'OFFLINE' },
+  available: { color: '#00FF88', label: 'AVAILABLE' },
+  dispatched: { color: '#FFAA00', label: 'DISPATCHED' },
+  'en-route': { color: '#0066FF', label: 'EN ROUTE' },
+  'on-scene': { color: '#FF0033', label: 'ON SCENE' },
+  offline: { color: '#94A3B8', label: 'OFFLINE' },
 };
 
 // Deterministic pseudo-ETA so it stays stable across re-renders without new state.

@@ -15,7 +15,7 @@ import { useStore } from '../context/StoreContext';
 
 const STATUS_FLOW = ['dispatched', 'en-route', 'on-scene', 'resolved'];
 const STATUS_COLOR = {
-  available: '#2E9E4F', dispatched: '#F07B1D', 'en-route': '#1C4FA6', 'on-scene': '#E63C2F', offline: '#A69A87',
+  available: '#00FF88', dispatched: '#FFAA00', 'en-route': '#0066FF', 'on-scene': '#FF0033', offline: '#94A3B8',
 };
 const STATUS_LABELS = ['DISPATCHED', 'EN ROUTE', 'ON SCENE', 'RESOLVED'];
 
