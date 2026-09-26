@@ -142,15 +142,15 @@ export default function Home({ onNavigate }) {
       {/* ============ HERO ============ */}
       <section className="hero-city relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-8 py-16 overflow-hidden bg-transparent">
         {/* Avengers Top Background Image */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.25] sm:opacity-[0.4]" style={{ zIndex: 0 }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
           <img 
             src="https://wallpapercave.com/wp/wp3718001.jpg" 
             alt="Avengers Background" 
             className="w-full h-full object-cover object-top"
           />
-          {/* Fade gradients so the text remains legible AND it fades perfectly into the Spider-Man background below */}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, var(--void) 15%, transparent 75%)' }} />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--void) 0%, transparent 20%, transparent 70%, transparent 100%)' }} />
+          {/* Subtle fade so text remains legible without washing out the image */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, var(--void) 0%, transparent 60%)' }} />
+          <div className="absolute inset-0 bg-black/10" />
         </div>
 
         {/* HUD backdrop */}
