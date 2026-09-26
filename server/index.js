@@ -346,6 +346,29 @@ app.patch('/api/units/:id/status', async (req, res) => {
 });
 
 // =========================================================
+// AI CHATBOT ROUTE
+// =========================================================
+import { generateChatResponse } from './chatAI.js';
+
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { message, history } = req.body;
+    
+    // Fetch live system context for the AI
+    const incidents = await Incident.find({ status: { $ne: 'resolved' } }).lean();
+    const heroes = await Hero.find({}).lean();
+    
+    const contextData = { incidents, heroes };
+    
+    const aiResponse = await generateChatResponse(message, history || [], contextData);
+    res.json({ response: aiResponse });
+  } catch (err) {
+    console.error('Chat error:', err);
+    res.status(500).json({ error: 'Chat service failed' });
+  }
+});
+
+// =========================================================
 
 // --- SERVE FRONTEND IN PRODUCTION ---
 // This allows you to host both the backend and frontend on a single service (like Render)

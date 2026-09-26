@@ -6,6 +6,7 @@ import DispatchPanel from '../components/DispatchPanel';
 import AnalyticsChart from '../components/AnalyticsChart';
 import UnitCard from '../components/UnitCard';
 import CreateHeroModal from '../components/CreateHeroModal';
+import AIChatBot from '../components/AIChatBot';
 import { useStore } from '../context/StoreContext';
 import { useSocket } from '../context/SocketContext';
 
@@ -271,6 +272,7 @@ export default function Dashboard() {
           <CreateHeroModal onClose={() => setShowCreateHero(false)} />
         )}
       </AnimatePresence>
+      <AIChatBot />
     </div>
   );
 }
