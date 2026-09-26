@@ -1,0 +1,305 @@
+/* SpiderSense: Avengers command interface */
+
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --radius-panel: 12px;
+  --ink-line: 1px;
+  
+  /* Unified Cinematic Dark Theme */
+  --void: #05070a;
+  --panel: #0a0e14;
+  --panel-raised: #111620;
+  --panel-glass: rgba(10, 14, 20, 0.75);
+  --grid-line: rgba(255, 255, 255, 0.04);
+  --border: rgba(39, 197, 232, 0.15);
+  --border-bright: rgba(39, 197, 232, 0.4);
+  
+  --cyan: #27c5e8; /* JARVIS Main */
+  --cyan-dim: #1486ad;
+  --blue: #1d5ce6; /* Spider-Sense Blue */
+  --red: #ff3344; /* Danger / Spider-Man Red */
+  --red-dim: #b81a28;
+  --amber: #ffaa00; /* JARVIS Gold */
+  --green: #2ecca1; /* Success / Safe */
+  --violet: #8c5cd6; /* Intelligence / Tech */
+  --yellow: #ffcf5c;
+
+  --on-accent: #ffffff;
+  --ink: #e2e8f0;
+  --ink-muted: #94a3b8;
+  --ink-faint: #475569;
+
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --shadow-inset: rgba(255, 255, 255, 0.05);
+
+  --font-display: 'Orbitron', 'Segoe UI', sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --bg-pattern: linear-gradient(rgba(39, 197, 232, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(39, 197, 232, 0.03) 1px, transparent 1px), radial-gradient(ellipse at 50% 0%, rgba(39, 197, 232, 0.08), transparent 65%);
+  --bg-size: 44px 44px, 44px 44px, auto;
+}
+
+.theme-commander {
+  --radius-panel: 6px; /* more rigid, tactical */
+}
+
+.theme-hero {
+  --border: rgba(255, 51, 68, 0.2); /* Red tint for Spider-Man/Heroes */
+  --bg-pattern: radial-gradient(circle at center, rgba(255, 51, 68, 0.05) 0%, transparent 70%);
+}
+
+.theme-home {
+  --void: #f8f6f0; /* Cream background */
+  --panel: #ffffff;
+  --panel-raised: #f3efe9;
+  --panel-glass: rgba(255, 255, 255, 0.96);
+  --grid-line: rgba(229, 43, 43, 0.12); /* light red grid line */
+  --border: rgba(229, 43, 43, 0.25); /* Spidey red border */
+  --border-bright: rgba(229, 43, 43, 0.6);
+
+  --cyan: #e52b2b; /* Map primary UI to Spidey Red */
+  --cyan-dim: #c91e1e;
+  --blue: #004abf; /* Spidey Blue */
+  --red: #e52b2b;
+  --red-dim: #c91e1e;
+
+  --on-accent: #ffffff;
+  --ink: #111111; /* Dark text for cream bg */
+  --ink-muted: #4a4a4c;
+  --ink-faint: #767679;
+
+  --shadow-color: rgba(229, 43, 43, 0.15); /* Red tinted soft shadow */
+  --shadow-inset: rgba(255, 255, 255, 0.5);
+
+  --font-display: 'Orbitron', 'Segoe UI', sans-serif;
+  --bg-pattern: radial-gradient(circle at center, rgba(229, 43, 43, 0.06) 0%, transparent 60%);
+}
+
+.theme-citizen {
+  --font-display: 'Segoe UI', system-ui, sans-serif;
+  --bg-pattern: none;
+  --panel-glass: rgba(15, 21, 30, 0.95); /* more solid for readability */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-mono);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+}
+
+/* ---------- Tactical city-grid backdrop ---------- */
+.tac-grid-bg {
+  background-color: transparent;
+  position: relative;
+}
+
+.tac-grid-bg::before {
+  display: none;
+}
+
+/* ---------- Stark-style holographic panels ---------- */
+.glass-panel {
+  background: var(--panel-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: var(--ink-line) solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: inset 0 1px 0 var(--shadow-inset), 0 16px 40px -12px var(--shadow-color);
+  position: relative;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 211, 245, 0.42), transparent);
+  opacity: 0.5;
+}
+
+/* HUD corner accents */
+.panel-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  opacity: 0.9;
+}
+.panel-corner::before {
+  content: '\2605';
+  position: absolute;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--yellow);
+  -webkit-text-stroke: 1.4px var(--border);
+  paint-order: stroke fill;
+}
+.panel-corner.tl { top: 6px; left: 6px; }
+.panel-corner.tr { top: 6px; right: 6px; }
+.panel-corner.bl { bottom: 6px; left: 6px; }
+.panel-corner.br { bottom: 6px; right: 6px; }
+
+/* ---------- Radar sweep ---------- */
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.radar-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.radar-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from 0deg, rgba(39, 197, 232, 0.24), transparent 28%);
+  animation: radar-spin 4.5s linear infinite;
+}
+
+/* ---------- Spider-Sense critical alert ---------- */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 64, 88, 0.55); }
+  70% { box-shadow: 0 0 0 14px rgba(255, 64, 88, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 64, 88, 0); }
+}
+.alert-pulse {
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.status-live {
+  animation: status-blink 1.6s ease-in-out infinite;
+}
+
+/* ---------- Scrollbars ---------- */
+.tac-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.tac-scroll::-webkit-scrollbar-track { background: transparent; }
+.tac-scroll::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 4px; }
+
+/* ---------- Utility text treatments ---------- */
+.data-label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+.leaflet-container {
+  background: var(--void) !important;
+  font-family: var(--font-mono) !important;
+}
+
+/* Dark mode for OpenStreetMap */
+.map-dark-mode {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* ---------- Mission motion primitives ---------- */
+
+/* Precision lock-on panel entrance */
+@keyframes lock-on-in {
+  0% { transform: scale(1.5) rotate(-3deg); opacity: 0; }
+  60% { transform: scale(0.94) rotate(1deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.lock-on {
+  animation: lock-on-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Diagnostic scan sweep */
+@keyframes scan-sweep {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(2100%); opacity: 0; }
+}
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(39, 197, 232, 0.13), transparent);
+  animation: scan-sweep 2.4s linear infinite;
+  pointer-events: none;
+}
+
+/* Charged / escalating critical alert border */
+@keyframes charge-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 64, 88, 0.35), 0 0 18px rgba(255, 64, 88, 0.08); }
+  50% { box-shadow: 0 0 0 2px rgba(255, 64, 88, 0.75), 0 0 26px rgba(255, 64, 88, 0.2); }
+}
+.charge-glow {
+  animation: charge-glow 1.4s ease-in-out infinite;
+}
+
+/* High-impact confirmation flash */
+@keyframes impact-flash {
+  0% { box-shadow: inset 0 0 0 0 rgba(28, 20, 16, 0); }
+  15% { box-shadow: inset 0 0 120px 20px rgba(39, 197, 232, 0.3); }
+  100% { box-shadow: inset 0 0 0 0 rgba(28, 20, 16, 0); }
+}
+.impact-flash {
+  animation: impact-flash 0.6s ease-out;
+}
+
+/* Orbital reveal rings, dashed comic-diagram style */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes orbit-spin-rev {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.orbit-ring-a { animation: orbit-spin 22s linear infinite; border-style: dashed !important; }
+.orbit-ring-b { animation: orbit-spin-rev 30s linear infinite; border-style: dashed !important; }
+
+.hero-city {
+  background-color: var(--void);
+  background-image: var(--bg-pattern);
+  background-size: var(--bg-size);
+}
+
+.web-grid {
+  background-image: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255, 64, 88, 0.16) 0deg 0.4deg, transparent 0.4deg 30deg), repeating-radial-gradient(circle at 50% 50%, transparent 0 28px, rgba(255, 64, 88, 0.15) 29px 30px, transparent 31px 58px);
+  mask-image: radial-gradient(circle, #000 0%, transparent 72%);
+}
+
+@keyframes spider-sense-wave {
+  0% { transform: scale(0.35); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.spider-sense-wave { animation: spider-sense-wave 2.2s ease-out infinite; }
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+  .lock-on, .scan-line, .charge-glow, .impact-flash, .orbit-ring-a, .orbit-ring-b, .spider-sense-wave,
+  .status-live, .alert-pulse, .radar-sweep::after, .animated-route {
+    animation: none !important;
+  }
+}
+
+@keyframes dash-flow {
+  to { stroke-dashoffset: -20; }
+}
+.animated-route {
+  animation: dash-flow 1.5s linear infinite;
+}
