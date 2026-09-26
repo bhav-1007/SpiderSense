@@ -50,10 +50,6 @@
 }
 
 .theme-home {
-  --void: #f8f6f0; /* Cream background */
-  --panel: #ffffff;
-  --panel-raised: #f3efe9;
-  --panel-glass: rgba(255, 255, 255, 0.96);
   --grid-line: rgba(229, 43, 43, 0.12); /* light red grid line */
   --border: rgba(229, 43, 43, 0.25); /* Spidey red border */
   --border-bright: rgba(229, 43, 43, 0.6);
@@ -64,13 +60,6 @@
   --red: #e52b2b;
   --red-dim: #c91e1e;
 
-  --on-accent: #ffffff;
-  --ink: #111111; /* Dark text for cream bg */
-  --ink-muted: #4a4a4c;
-  --ink-faint: #767679;
-
-  --shadow-color: rgba(229, 43, 43, 0.15); /* Red tinted soft shadow */
-  --shadow-inset: rgba(255, 255, 255, 0.5);
 
   --font-display: 'Orbitron', 'Segoe UI', sans-serif;
   --bg-pattern: radial-gradient(circle at center, rgba(229, 43, 43, 0.06) 0%, transparent 60%);
