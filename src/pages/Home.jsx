@@ -9,6 +9,7 @@ import MapView from '../components/MapView';
 import AnalyticsChart from '../components/AnalyticsChart';
 import UnitCard from '../components/UnitCard';
 import Emblem from '../components/Emblem';
+import AIChatBot from '../components/AIChatBot';
 import { useStore } from '../context/StoreContext';
 import { useSocket } from '../context/SocketContext';
 
@@ -454,6 +455,7 @@ export default function Home({ onNavigate }) {
           </p>
         </Reveal>
       </section>
+      <AIChatBot />
     </div>
   );
 }
