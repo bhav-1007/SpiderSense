@@ -379,7 +379,7 @@ if (process.env.NODE_ENV === 'production') {
 
   // The "catchall" handler: for any request that doesn't match an api route, 
   // send back React's index.html file.
-  app.get('*', (req, res) => {
+  app.use((req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));
   });
 }
