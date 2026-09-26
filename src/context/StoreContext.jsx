@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import axios from 'axios';
 import { socket } from './SocketContext';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:4000/api`;
+const API_BASE = import.meta.env.PROD ? '/api' : `http://${window.location.hostname}:4000/api`;
 const StoreContext = createContext();
 
 export function useStore() {

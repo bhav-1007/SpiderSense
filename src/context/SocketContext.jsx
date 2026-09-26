@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { io } from 'socket.io-client';
 
-export const socket = io(import.meta.env.VITE_SOCKET_URL || `http://${window.location.hostname}:4000`, {
+export const socket = io(import.meta.env.PROD ? '/' : `http://${window.location.hostname}:4000`, {
   autoConnect: true,
   reconnection: true
 });
