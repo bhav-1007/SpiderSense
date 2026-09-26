@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, HeartPulse, Radiation, LifeBuoy, ShieldAlert, CloudLightning, Crosshair, Send, CheckCircle2 } from 'lucide-react';
 
@@ -23,6 +23,9 @@ export default function IncidentForm({ onSubmit, submitting = false }) {
   const [severity, setSeverity] = useState('high');
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
+  const [coordinates, setCoordinates] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [notes, setNotes] = useState('');
   const [sent, setSent] = useState(false);
   const [errors, setErrors] = useState({});
@@ -34,15 +37,33 @@ export default function IncidentForm({ onSubmit, submitting = false }) {
     return e;
   };
 
+  useEffect(() => {
+    if (!location || location.length < 3 || coordinates) {
+      setSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=5`);
+        const data = await res.json();
+        setSuggestions(data);
+        setShowSuggestions(true);
+      } catch (err) {
+        console.error('Location search failed:', err);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [location, coordinates]);
+
   const handleSubmit = (evt) => {
     evt.preventDefault();
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length) return;
 
-    // Generate a mock coordinate around NYC (roughly +/- 5km from center)
-    const lat = 40.7128 + (Math.random() * 0.1 - 0.05);
-    const lng = -74.0060 + (Math.random() * 0.1 - 0.05);
+    // Use actual coordinates if selected, otherwise generate a mock coordinate around NYC
+    const lat = coordinates ? parseFloat(coordinates.lat) : 40.7128 + (Math.random() * 0.1 - 0.05);
+    const lng = coordinates ? parseFloat(coordinates.lon) : -74.0060 + (Math.random() * 0.1 - 0.05);
 
     onSubmit?.({
       type,
@@ -136,16 +157,42 @@ export default function IncidentForm({ onSubmit, submitting = false }) {
         {errors.title && <p className="text-[11px] mt-1" style={{ color: 'var(--red)' }}>{errors.title}</p>}
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 relative">
         <label className="data-label block mb-2" htmlFor="incident-location">LOCATION</label>
         <input
           id="incident-location"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={(e) => { setLocation(e.target.value); setCoordinates(null); }}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
           placeholder="Address, cross-street, or landmark"
           className="w-full bg-[var(--panel-raised)] border rounded-xl px-3 py-2.5 text-sm text-[var(--ink)] placeholder:text-[var(--ink-faint)] outline-none focus:border-[var(--cyan)] transition-colors"
           style={{ borderColor: errors.location ? 'var(--red)' : 'var(--border)' }}
         />
+        <AnimatePresence>
+          {showSuggestions && suggestions.length > 0 && (
+            <motion.div 
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="absolute z-10 w-full mt-1 bg-[var(--panel)] border border-[var(--border)] rounded-xl shadow-lg max-h-48 overflow-y-auto"
+            >
+              {suggestions.map((s, i) => (
+                <div 
+                  key={i} 
+                  className="px-3 py-2 text-sm text-[var(--ink)] hover:bg-[var(--cyan)] hover:text-[var(--on-accent)] cursor-pointer truncate transition-colors"
+                  onClick={() => {
+                    setLocation(s.display_name);
+                    setCoordinates({ lat: s.lat, lon: s.lon });
+                    setShowSuggestions(false);
+                  }}
+                >
+                  {s.display_name}
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
         {errors.location && <p className="text-[11px] mt-1" style={{ color: 'var(--red)' }}>{errors.location}</p>}
       </div>
 
