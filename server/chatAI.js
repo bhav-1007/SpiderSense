@@ -38,17 +38,24 @@ Answer the user's question accurately using only this real-time data or the plat
       }
     });
 
+    let safeHistory = history.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }],
+    }));
+    
+    // Gemini API requires chat history to begin with a 'user' message
+    if (safeHistory.length > 0 && safeHistory[0].role === 'model') {
+      safeHistory = safeHistory.slice(1);
+    }
+
     const chat = model.startChat({
-      history: history.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }],
-      }))
+      history: safeHistory
     });
 
     const result = await chat.sendMessage(message);
     return result.response.text();
   } catch (err) {
     console.error("AI Chat Error:", err);
-    return "Error communicating with intelligence mainframe. Please check API keys.";
+    return "MOCK AI INTEL: I cannot connect to the intelligence mainframe (API Key Invalid or Missing). However, my local scanners show " + contextData.incidents.length + " active incidents and " + contextData.heroes.length + " heroes registered.";
   }
 }
