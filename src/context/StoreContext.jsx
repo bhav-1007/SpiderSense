@@ -173,7 +173,7 @@ export function StoreProvider({ children }) {
       currentUser, login, logout, loginHero, createHero,
       selectedIncidentId, setSelectedIncidentId,
       reportIncident, updateIncidentStatus, assignUnits, setUnitStatus,
-      stats
+      stats, apiBase: API_BASE
     }}>
       {children}
     </StoreContext.Provider>
