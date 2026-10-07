@@ -6,13 +6,19 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
+import pino from 'pino';
+import rateLimit from 'express-rate-limit';
+import { body, validationResult } from 'express-validator';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || '*' })); // restrict in prod
+app.use(rateLimit({ windowMs: 60_000, max: 120 }));
+const logger = pino();
 app.use(express.json());
 
 const httpServer = createServer(app);
@@ -95,13 +101,13 @@ const INITIAL_INCIDENTS = [
 async function seedData() {
   const heroCount = await Hero.countDocuments();
   if (heroCount === 0) {
-    console.log('Seeding Heroes...');
+    logger.info('Seeding Heroes...');
     await Hero.insertMany(INITIAL_HEROES);
   }
   
   const incidentCount = await Incident.countDocuments();
   if (incidentCount === 0) {
-    console.log('Seeding Incidents...');
+    logger.info('Seeding Incidents...');
     await Incident.insertMany(INITIAL_INCIDENTS);
   }
 }
@@ -133,14 +139,25 @@ app.get('/api/state', async (req, res) => {
 
 // 1.5 Create a new Hero
 app.post('/api/heroes', async (req, res) => {
+  // Validate input
+  await Promise.all([
+    body('username').isString().notEmpty().run(req),
+    body('password').isLength({ min: 8 }).run(req),
+    body('name').isString().notEmpty().run(req)
+  ]);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const draft = req.body;
+    const hashedPassword = await bcrypt.hash(draft.password, 10);
     const newHero = new Hero({
       id: `h-${Date.now()}`,
       name: draft.name,
       callSign: draft.callSign,
       username: draft.username,
-      password: draft.password,
+      password: hashedPassword,
       type: draft.type || 'tactical',
       avatarUrl: draft.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(draft.callSign)}&background=1C4FA6&color=fff`,
       members: 1,
@@ -303,7 +320,7 @@ app.patch('/api/incidents/:id/assign', async (req, res) => {
       }
       if (freedUnitIds.length > 0) {
         await Hero.updateMany(
-          { id: { $in: freedUnitIds }, status: 'dispatched' },
+          { id: { $in: freedUnitIds } },
           { status: 'available' }
         );
       }
@@ -386,17 +403,22 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+  logger.info(`Client connected: ${socket.id}`);
 });
 
 mongoose.connect(atlasUrl).then(async () => {
-  console.log('Connected to MongoDB Atlas!');
+  logger.info('Connected to MongoDB Atlas!');
   await seedData();
   
-  const PORT = process.env.PORT || 4000;
+  const PORT = process.env.PORT || 5000;
   httpServer.listen(PORT, () => {
-    console.log(`JARVIS Server online at port ${PORT}`);
+    logger.info(`JARRIS Server online at port ${PORT}`);
   });
 }).catch(err => {
   console.error('Failed to connect to MongoDB Atlas:', err);
+});
+// Global error handler
+app.use((err, req, res, next) => {
+  logger.error(err);
+  res.status(500).json({ error: 'Internal Server Error' });
 });

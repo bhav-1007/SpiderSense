@@ -17,6 +17,10 @@
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "mongoose": "^9.10.2",
-    "socket.io": "^4.8.4"
+    "socket.io": "^4.8.4",
+    "bcrypt": "^5.1.1",
+    "pino": "^9.3.0",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1"
   }
 }
