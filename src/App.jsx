@@ -116,7 +116,7 @@ export default function App() {
         </div>
         <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'var(--bg-pattern)', zIndex: 0 }} />
 
-        <div className="relative z-10">
+        <div className={`relative z-10 ${route !== 'login' ? 'pb-16 md:pb-0' : ''}`}>
           {route !== 'login' && <Navigation active={route} onNavigate={navigate} />}
           <AnimatePresence mode="wait">
             <motion.div

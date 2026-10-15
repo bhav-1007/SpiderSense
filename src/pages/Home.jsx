@@ -180,11 +180,11 @@ export default function Home({ onNavigate }) {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative z-10 inline-flex self-center sm:self-start items-center gap-2 glass-panel px-3 py-1.5 mb-8"
+          className="relative z-10 inline-flex self-center sm:self-start items-center gap-2 glass-panel px-3 py-1.5 mb-6 sm:mb-8 max-w-full"
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--green)] status-live" />
-          <span className="data-label text-[var(--ink-muted)]">
-            {socket?.connected ? 'SPIDERSENSE ONLINE' : 'RECONNECTING TO JARVIS'} · {units.length} HERO UNITS · {stats.active} ACTIVE THREATS
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--green)] status-live shrink-0" />
+          <span className="data-label text-[var(--ink-muted)] text-[10px] sm:text-xs truncate">
+            {socket?.connected ? 'SPIDERSENSE ONLINE' : 'RECONNECTING'} · {units.length} HERO UNITS · {stats.active} ACTIVE THREATS
           </span>
         </motion.div>
 
@@ -193,7 +193,7 @@ export default function Home({ onNavigate }) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display text-5xl sm:text-7xl leading-[1.05] tracking-tight"
+            className="font-display text-3xl sm:text-5xl lg:text-7xl leading-[1.08] tracking-tight"
             style={{ textShadow: '3px 3px 0 rgba(28,20,16,0.18)' }}
           >
             WHEN DANGER STRIKES,

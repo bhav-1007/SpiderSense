@@ -156,7 +156,7 @@ export default function MapView({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="absolute bottom-3 left-3 z-[500] glass-panel px-3 py-2 lock-on"
+            className="absolute bottom-3 left-3 z-[500] glass-panel px-3 py-2 lock-on max-w-[calc(100%-24px)]"
           >
             <p className="data-label text-[var(--cyan)] mb-1 flex items-center gap-1.5">
               <Crosshair size={11} /> TARGET LOCK · {active.code}

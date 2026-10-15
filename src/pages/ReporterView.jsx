@@ -15,32 +15,39 @@ import { useStore } from '../context/StoreContext';
 
 const STEP_ORDER = ['unassigned', 'dispatched', 'en-route', 'on-scene', 'resolved'];
 const STEP_LABELS = ['Received', 'Verified & Dispatched', 'Responder En Route', 'On Scene', 'Resolved'];
+const SHORT_LABELS = ['Received', 'Dispatched', 'En Route', 'On Scene', 'Resolved'];
 
 function MissionTimeline({ status }) {
   const index = Math.max(0, STEP_ORDER.indexOf(status));
   return (
-    <div className="flex items-start gap-0">
+    <div className="flex items-start gap-0 w-full overflow-hidden">
       {STEP_LABELS.map((label, i) => {
         const done = i <= index;
         const isLast = i === STEP_LABELS.length - 1;
         return (
           <div key={label} className={`flex items-center ${isLast ? '' : 'flex-1'}`}>
-            <div className="flex flex-col items-center gap-1.5 shrink-0">
+            <div className="flex flex-col items-center gap-1.5 shrink-0 mx-auto">
               <motion.span
                 initial={false}
                 animate={{
                   backgroundColor: done ? 'var(--blue)' : 'var(--panel-raised)',
                   borderColor: done ? 'var(--blue)' : 'var(--border)',
                 }}
-                className="h-5 w-5 rounded-full border flex items-center justify-center"
+                className="h-5 w-5 rounded-full border flex items-center justify-center shrink-0"
               >
                 {done && <CheckCircle2 size={12} className="text-white" />}
               </motion.span>
               <span
-                className="data-label text-center leading-tight"
-                style={{ color: done ? 'var(--ink)' : 'var(--ink-faint)', maxWidth: 62, fontSize: 8.5 }}
+                className="data-label text-center leading-tight hidden sm:block"
+                style={{ color: done ? 'var(--ink)' : 'var(--ink-faint)', maxWidth: 64, fontSize: 8.5 }}
               >
                 {label}
+              </span>
+              <span
+                className="data-label text-center leading-tight sm:hidden"
+                style={{ color: done ? 'var(--ink)' : 'var(--ink-faint)', maxWidth: 50, fontSize: 8 }}
+              >
+                {SHORT_LABELS[i]}
               </span>
             </div>
             {!isLast && (

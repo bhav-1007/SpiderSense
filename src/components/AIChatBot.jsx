@@ -62,7 +62,8 @@ const AIChatBot = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 p-4 rounded-full shadow-2xl z-50 flex items-center justify-center
+        aria-label="Open J.A.R.V.I.S Tactical Intel"
+        className={`fixed bottom-20 right-4 sm:bottom-6 sm:right-6 p-3.5 sm:p-4 rounded-full shadow-2xl z-50 flex items-center justify-center min-w-[48px] min-h-[48px]
           ${isOpen ? 'hidden' : 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400'}`}
       >
         <Bot className="text-white w-6 h-6" />
@@ -76,7 +77,7 @@ const AIChatBot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed bottom-6 right-6 w-80 md:w-96 h-[500px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
+            className="fixed inset-x-3 bottom-20 top-16 sm:inset-x-auto sm:top-auto sm:bottom-6 sm:right-6 sm:w-96 sm:h-[500px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
           >
             {/* Header */}
             <div className="bg-slate-800 border-b border-slate-700 p-4 flex items-center justify-between">
