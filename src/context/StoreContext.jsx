@@ -2,7 +2,12 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import axios from 'axios';
 import { socket } from './SocketContext';
 
-const API_BASE = import.meta.env.PROD ? '/api' : `http://${window.location.hostname}:4000/api`;
+// In production, the frontend and backend are served from the same origin.
+// In development, Vite runs on 5173 and the backend runs on 4000.
+const API_BASE = import.meta.env.PROD
+  ? '/api'
+  : `http://${window.location.hostname}:4000/api`;
+
 const StoreContext = createContext();
 
 export function useStore() {
@@ -10,23 +15,29 @@ export function useStore() {
 }
 
 export function StoreProvider({ children }) {
-  const [incidents, setIncidents] = useState([]);
-  const [units, setUnits] = useState([]);
-  const [aiAutoDispatchEnabled, setAiAutoDispatchEnabledState] = useState(true);
-  
+  const [incidents, setIncidents]                       = useState([]);
+  const [units, setUnits]                               = useState([]);
+  const [aiAutoDispatchEnabled, setAiAutoDispatchState] = useState(true);
+
+  // Persist logged-in user across page refreshes
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('spidersense_user');
-    if (saved) {
+    try {
+      const saved = localStorage.getItem('spidersense_user');
+      if (!saved) return null;
       const user = JSON.parse(saved);
+      // Migrate old 'dispatcher' role name → 'commander'
       if (user.role === 'dispatcher') user.role = 'commander';
       return user;
+    } catch {
+      return null;
     }
-    return null;
   });
+
   const [selectedIncidentId, setSelectedIncidentId] = useState(null);
 
+  // ── Initial data fetch + Socket.io event listeners ────────────────────────
   useEffect(() => {
-    // Initial fetch via REST API
+    // Fetch all data on mount
     axios.get(`${API_BASE}/state`)
       .then((res) => {
         setIncidents(res.data.incidents || []);
@@ -35,31 +46,37 @@ export function StoreProvider({ children }) {
       .catch(console.error);
 
     axios.get(`${API_BASE}/settings`)
-      .then((res) => setAiAutoDispatchEnabledState(res.data.aiAutoDispatchEnabled))
+      .then((res) => setAiAutoDispatchState(res.data.aiAutoDispatchEnabled))
       .catch(console.error);
 
+    // Real-time updates from the server
     socket.on('sync:state', (state) => {
       setIncidents(state.incidents || []);
       setUnits(state.units || []);
     });
 
     socket.on('settings:ai-auto-dispatch', (data) => {
-      setAiAutoDispatchEnabledState(data.enabled);
+      setAiAutoDispatchState(data.enabled);
     });
 
     socket.on('incident:created', (newInc) => {
-      setIncidents(prev => {
-        if (prev.some(i => i.id === newInc.id)) return prev;
+      setIncidents((prev) => {
+        // Avoid duplicates in case a sync:state also arrives
+        if (prev.some((i) => i.id === newInc.id)) return prev;
         return [newInc, ...prev];
       });
     });
 
     socket.on('incident:updated', (updatedInc) => {
-      setIncidents(prev => prev.map(inc => inc.id === updatedInc.id ? updatedInc : inc));
+      setIncidents((prev) =>
+        prev.map((inc) => (inc.id === updatedInc.id ? updatedInc : inc))
+      );
     });
 
     socket.on('unit:updated', (updatedUnit) => {
-      setUnits(prev => prev.map(u => u.id === updatedUnit.id ? updatedUnit : u));
+      setUnits((prev) =>
+        prev.map((u) => (u.id === updatedUnit.id ? updatedUnit : u))
+      );
     });
 
     socket.on('unit:updated_many', (updatedUnits) => {
@@ -76,13 +93,15 @@ export function StoreProvider({ children }) {
     };
   }, []);
 
+  // ── Auth helpers ─────────────────────────────────────────────────────────
+
+  /** Quick login for Commander and Citizen roles (no server call needed) */
   const login = (role) => {
-    let user = { id: 'u-' + Date.now(), name: role === 'citizen' ? 'Citizen' : role === 'commander' ? 'Commander' : 'Hero', role };
-    if (role === 'responder') {
-      // Bind to a fixed unit (e.g. Iron Man) for demo credibility instead of letting them pick from a dropdown
-      user.unitId = 'h-2'; 
-      user.name = 'Tony Stark';
-    }
+    const user = {
+      id:   `u-${Date.now()}`,
+      name: role === 'citizen' ? 'Citizen' : role === 'commander' ? 'Commander' : 'Hero',
+      role,
+    };
     setCurrentUser(user);
     localStorage.setItem('spidersense_user', JSON.stringify(user));
   };
@@ -92,89 +111,82 @@ export function StoreProvider({ children }) {
     localStorage.removeItem('spidersense_user');
   };
 
+  /** Hero login — authenticates against the backend and binds the unit */
+  const loginHero = useCallback(async (heroId) => {
+    const res  = await axios.post(`${API_BASE}/login`, { id: heroId });
+    const hero = res.data;
+    const user = {
+      id:     `u-${Date.now()}`,
+      name:   hero.callSign || hero.name,
+      role:   'responder',
+      unitId: hero.id,
+    };
+    setCurrentUser(user);
+    localStorage.setItem('spidersense_user', JSON.stringify(user));
+    return hero;
+  }, []);
+
+  /** Register a new hero/responder unit */
+  const createHero = useCallback(async (draft) => {
+    const res = await axios.post(`${API_BASE}/heroes`, draft);
+    return res.data;
+  }, []);
+
+  // ── Incident actions ──────────────────────────────────────────────────────
+
   const reportIncident = useCallback(async (draft) => {
-    try {
-      const res = await axios.post(`${API_BASE}/incidents`, draft);
-      return res.data.id;
-    } catch (error) {
-      console.error('Failed to report incident', error);
-      throw error;
-    }
+    const res = await axios.post(`${API_BASE}/incidents`, draft);
+    return res.data.id;
   }, []);
 
   const updateIncidentStatus = useCallback(async (id, status) => {
-    try {
-      await axios.patch(`${API_BASE}/incidents/${id}/status`, { status });
-    } catch (error) {
-      console.error('Failed to update incident', error);
-    }
+    await axios.patch(`${API_BASE}/incidents/${id}/status`, { status });
   }, []);
 
   const assignUnits = useCallback(async (incidentId, unitIds, opts = {}) => {
-    try {
-      await axios.patch(`${API_BASE}/incidents/${incidentId}/assign`, { unitIds, ...opts });
-    } catch (error) {
-      console.error('Failed to assign units', error);
-    }
+    await axios.patch(`${API_BASE}/incidents/${incidentId}/assign`, {
+      unitIds,
+      ...opts,
+    });
   }, []);
 
-  const setUnitStatus = useCallback(async (unitId, status) => {
-    try {
-      await axios.patch(`${API_BASE}/units/${unitId}/status`, { status });
-    } catch (error) {
-      console.error('Failed to set unit status', error);
-    }
+  // ── Unit actions ──────────────────────────────────────────────────────────
+
+  const setUnitStatus = useCallback(async (unitId, statusOrUpdate) => {
+    // Accepts either a string ("dispatched") or an object ({ isActive: false })
+    const body = typeof statusOrUpdate === 'string'
+      ? { status: statusOrUpdate }
+      : statusOrUpdate;
+    await axios.patch(`${API_BASE}/units/${unitId}/status`, body);
   }, []);
 
-  const loginHero = useCallback(async (heroId) => {
-    try {
-      const res = await axios.post(`${API_BASE}/login`, { id: heroId });
-      const hero = res.data;
-      const user = { id: `u-${Date.now()}`, name: hero.callSign || hero.name, role: 'responder', unitId: hero.id };
-      setCurrentUser(user);
-      localStorage.setItem('spidersense_user', JSON.stringify(user));
-      return hero;
-    } catch (error) {
-      console.error('Login failed', error);
-      throw error;
-    }
-  }, []);
-
-  const createHero = useCallback(async (draft) => {
-    try {
-      const res = await axios.post(`${API_BASE}/heroes`, draft);
-      return res.data;
-    } catch (error) {
-      console.error('Failed to create hero', error);
-      throw error;
-    }
-  }, []);
+  // ── AI dispatch toggle ────────────────────────────────────────────────────
 
   const setAiAutoDispatchEnabled = useCallback(async (enabled) => {
-    try {
-      await axios.patch(`${API_BASE}/settings/ai-auto-dispatch`, { enabled });
-    } catch (error) {
-      console.error('Failed to set AI dispatch', error);
-    }
+    await axios.patch(`${API_BASE}/settings/ai-auto-dispatch`, { enabled });
   }, []);
 
+  // ── Derived stats ─────────────────────────────────────────────────────────
   const stats = {
-    total: incidents.length,
+    total:    incidents.length,
     critical: incidents.filter((i) => i.severity === 'critical').length,
-    active: incidents.filter((i) => i.status !== 'resolved').length,
+    active:   incidents.filter((i) => i.status !== 'resolved').length,
     resolved: incidents.filter((i) => i.status === 'resolved').length,
   };
 
   return (
-    <StoreContext.Provider value={{
-      incidents, setIncidents,
-      units, setUnits,
-      aiAutoDispatchEnabled, setAiAutoDispatchEnabled,
-      currentUser, login, logout, loginHero, createHero,
-      selectedIncidentId, setSelectedIncidentId,
-      reportIncident, updateIncidentStatus, assignUnits, setUnitStatus,
-      stats, apiBase: API_BASE
-    }}>
+    <StoreContext.Provider
+      value={{
+        incidents, setIncidents,
+        units,     setUnits,
+        aiAutoDispatchEnabled, setAiAutoDispatchEnabled,
+        currentUser, login, logout, loginHero, createHero,
+        selectedIncidentId, setSelectedIncidentId,
+        reportIncident, updateIncidentStatus, assignUnits, setUnitStatus,
+        stats,
+        apiBase: API_BASE,
+      }}
+    >
       {children}
     </StoreContext.Provider>
   );

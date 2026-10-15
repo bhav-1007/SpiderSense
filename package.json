@@ -1,12 +1,14 @@
 {
-  "name": "aegis-command-frontend",
+  "name": "spidersense",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cd server && npm install",
-    "start": "cd server && node index.js",
+    "dev:server": "npm --prefix server run dev",
+    "build": "vite build && npm --prefix server install",
+    "render-build": "npm install && npm run build",
+    "start": "node server/src/server.js",
     "preview": "vite preview"
   },
   "dependencies": {

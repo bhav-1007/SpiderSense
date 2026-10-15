@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X, Send, User, ChevronUp, Loader2 } from 'lucide-react';
-import { useStore } from '../context/StoreContext';
+
+// Compute API base the same way StoreContext does — no need to pull from context
+const API_BASE = import.meta.env.PROD
+  ? '/api'
+  : `http://${window.location.hostname}:4000/api`;
 
 const AIChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +14,6 @@ const AIChatBot = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { apiBase } = useStore();
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -30,7 +33,7 @@ const AIChatBot = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${apiBase}/chat`, {
+      const response = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

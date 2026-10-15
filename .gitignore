@@ -4,3 +4,4 @@ dist
 
 server/node_modules
 server/.env
+server/src/config/gemini.js.bak
